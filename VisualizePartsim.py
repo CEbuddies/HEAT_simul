@@ -17,23 +17,28 @@ class VisualizePartsim():
         self.traj = trajec
         shape = np.shape(trajec)
         self.sidesz = int(np.sqrt(shape[1]))
-    def matshow_field(self,freq=10):
-        freq = freq
+        
+    def matshow_field(self,freq=10,perc_show=0.5):
+        
         
         tmats = self.traj.reshape(self.valuepts,self.sidesz,self.sidesz)
         fig, ax1 = plt.subplots()
         plt.show()
         minval = np.min(tmats)
         maxval = np.max(tmats)
-        perc_show = 0.1
+        
         
         for i in range(int(perc_show*self.valuepts)):
             try:
-                plotob = ax1.matshow(tmats[i],cmap=matplotlib.cm.plasma,interpolation='nearest',vmin=minval,vmax=maxval)
-                plt.draw()
+                if i%freq == 0:
+                    plotob = ax1.matshow(tmats[i],
+                                     cmap=matplotlib.cm.plasma,
+                                     interpolation='nearest',
+                                     vmin=minval,vmax=maxval)
+                    plt.draw()
                 if i == 0:
                     fig.colorbar(plotob,ax=ax1)
-                if i % 10 == 0:
+                if i % freq == 0:
                     print('{0:d} of {1:d} plots done...'.format(i,int(self.valuepts*perc_show)))
                 plt.pause(0.01)
                 

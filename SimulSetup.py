@@ -6,6 +6,7 @@ Created on Sun Feb 14 14:57:37 2021
 """
 import numpy as np 
 from collections import defaultdict
+import pickle
 
 
 class Simulation():
@@ -48,6 +49,7 @@ class Simulation():
         return 
     
     def find_pairs(self,number_parts):
+        # not needed so far, maybe deprecate
         """
         finds the adjacent particles for the connectivity
         creates a dictionary that contains the connected parts
@@ -114,6 +116,51 @@ class Simulation():
         
         temp = self.ener/(self.c*self.m)
         return temp
+    
+    def store_data(self,data_to_store):
+        
+        with open('simuldata.smd','wb') as pd:
+            pickle.dump(data_to_store,pd)
+        
+        return
+    
+    def simulation_run_while(self):
+        # TODO - simulation until steady state 
+        # find a measure for the most little gradient 
+        grad = 10000
+        while grad > 0.1:
+            pass
+        return
+    
+    def simulation_run_for(self,timestep,time,frames=10000):
+        
+        num_steps = int(round(time/timestep))
+        temp_data = np.zeros((num_steps,self.number_parts))
+        temp_grad_data = np.zeros((num_steps,self.number_parts))
+        # wab spatial gradients!!!
+        for t in range(num_steps):
+            q_vec = self.part2part_grad()
+            old_temp = self.temp
+        
+            # change this and also use adaptive solver 
+            new_ener = self.fwd_euler(self.ener,q_vec,timestep)
+            self.ener = new_ener
+            # update temperature
+            self.temp = self.temp_from_E()
+            temp_data[t,:] = self.temp.T
+            temp_grad = (self.temp - old_temp)/timestep
+            temp_grad_data[t,:] = temp_grad.T
+            time += 0.01
+        # obtain time vector at the end 
+        time_ = np.linspace(0,num_steps*timestep,num_steps)
+        
+        results = dict()
+        results['time'] = time_
+        results['temperature'] = temp_data
+        results['temperature_grad'] = temp_grad_data
+        
+        
+        return results
     
 class Material():
     
