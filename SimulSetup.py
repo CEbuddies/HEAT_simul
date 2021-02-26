@@ -13,7 +13,11 @@ class Simulation():
     
     def __init__(self,grid_size):
         
+        # TODO: Use new sys_mat creation from mesh
+        # get triu, use random numbers the, make it a tril and copy it
         # domain is shaped 1x1
+        # grid size must be tuple 
+        self.grid_size = grid_size
         self.grid_el_p_side = grid_size[0]
         self.number_parts = grid_size[0]*grid_size[1]
         x = np.linspace(0,1,self.grid_el_p_side)
@@ -36,50 +40,20 @@ class Simulation():
         self.ener = self.temp*self.c*self.m
         self.r = (1/grid_size[0])/2
         
+        # mesh element object, elements per side and domain size 
         self.mesh = Mesh(grid_size[0],grid_size[1],1,1)
-        self.connect, self.k_mat = self.mesh.mat_indices(3,3)
+        # connectivity and transfer matrix
+        self.connect, self.k_mat = self.mesh.mat_indices(*self.grid_size)
         
-    def calc_sysmat(self):
-        # suitable for nonlinear behavior as well
-        return
     
     def random_sysmat(self):
-        
+        """ Standalone version of sysmat """
         rand_sysmat = 0.02*np.random.rand(self.number_parts,self.number_parts)
         return 
     
-    def find_pairs(self,number_parts):
-        # not needed so far, maybe deprecate
-        """
-        finds the adjacent particles for the connectivity
-        creates a dictionary that contains the connected parts
-        in: a variable number of particles - necessary ?
-
-        """
-        # create empty dictionary 
-        d_connect = defaultdict().fromkeys(range(number_parts))
-        # outter loop that goes for every single vector
-        for num1, coord in enumerate(self.xy_coords):
-            temp_list = list()
-            # inner loop for the dinstance calculation
-            for num2, coord2 in enumerate(self.xy_coords):
-                # calculate distance vector
-                dist_v = coord2 - coord
-                # euklidean norm 
-                dist = np.round(np.linalg.norm(dist_v),4)
-                if dist <= 2*self.r and dist > 0:
-                    temp_list.append(num2)
-                    
-            d_connect[num1] = temp_list
-            
-        return d_connect
-    
-    def k_mat(self,number_parts):
+    def randomize_sysmat(self,sysmat):
         
-        indexes, k_mat = self.mesh.mat_indices(3,3)
-        
-        
-        return k_mat, indexes
+        return
     
     def mat_indices(self,lines,cols):
         
@@ -175,15 +149,30 @@ class Mesh():
         
         meshdist1 = domain1/el1
         meshdist2 = domain2/el2
-        start_d1 = meshdist1/2
+        start_d1 = meshdist1/2 # use half for radius
         start_d2 = meshdist2/2
         self.x = np.linspace(start_d1,domain1-start_d1,el1)
-        self.y = np.linspace(start_d2,domain2-start_d1,el1)
+        self.y = np.linspace(start_d2,domain2-start_d1,el2)
         self.xy = np.meshgrid(self.x,self.y)
         self.coords = np.array(self.xy).T.reshape(el1*el2,2)
         
+        self.lines = el1
+        self.cols = el2       
+        self.element_indices = self.get_element_indices(el1,el2)
         
         return
+    
+    def get_element_indices(self,lines,cols):
+        list_idx = []
+        
+        
+        for el_no in range(lines*cols):
+            col_id = el_no % cols
+            line_id = int((el_no-col_id)/cols)
+            list_idx.append(np.array([line_id,col_id]))
+            
+            
+        return list_idx
     
     def mat_indices(self,lines,cols):
         
@@ -193,11 +182,12 @@ class Mesh():
         
         for el_no in range(lines*cols):
             col_id = el_no % cols
-            line_id = int((el_no-col_id)/3)
+            line_id = int((el_no-col_id)/cols)
             list_idx.append(np.array([line_id,col_id]))
             
-        for k_line in range(9):
-            for k_col in range(9):
+        # fix this
+        for k_line in range(lines):
+            for k_col in range(cols):
                 #if np.abs(np.sum(list_idx[k_line] - list_idx[k_col])) == 1:
                 if (np.abs(list_idx[k_line][0] - list_idx[k_col][0]) 
                     + np.abs(list_idx[k_line][1] - list_idx[k_col][1])) == 1:
@@ -207,6 +197,51 @@ class Mesh():
                         k_mat[k_line,k_col] = np.random.rand()*0.1
             
         return list_idx, k_mat 
+    
+    def check_neighbour(self,number_id):
+        # check either next element or all ? 
+        upper = np.array([number_id[0]-1,number_id[1]])
+        lower = np.array([number_id[0]+1,number_id[1]])
+        left = np.array([number_id[0],number_id[1]-1])
+        right = np.array([number_id[0],number_id[1]+1])
+        
+        star = list((upper,lower,left,right))
+        deletelist = []
+        for linenum,id_ in enumerate(star):
+            # TODO: lines must be able to be different than cols
+            # could also be done by cuttin specific area in the mat
+            if np.any(id_<0) or id_[0]>self.lines-1 or id_[1]>self.cols-1:
+                star[linenum] = None
+                
+        star_ret = [el_true for el_true in star if el_true is not None]
+                
+        return star_ret
+    
+    def build_sysmat(self,element_indices=None):
+        # TODO: either return a matrix with ones at specific
+        # places or the k-Mat directly
+        if element_indices == None:
+            element_indices = self.element_indices
+            
+        k_mat = np.zeros((self.lines*self.cols,self.lines*self.cols))
+        for l_idx,line in enumerate(k_mat):
+            el_idx = self.element_indices[l_idx]
+            indices = self.check_neighbour(el_idx)
+            for index in indices:
+                colnum = index[0]*(self.lines)+index[1]
+                k_mat[l_idx,colnum] = 1
+                
+        return k_mat
+    def convert_neigh_2_entry(self,neighbours,lines,cols):
+        # maybe need to encapsulate in for loop
+        elnum = neighbours[0]*lines+neighbours[1]
+        
+    def connectivity_table(self):
+        """ Create connectivity per Element """
+        
+    # TODO: connectivity!!!
+    
+        
         
         
         

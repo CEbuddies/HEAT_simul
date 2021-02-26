@@ -12,8 +12,9 @@ from SimulSetup import Simulation
 from VisualizePartsim import VisualizePartsim
 import numpy as np
 import pickle
-
-sim = Simulation((3,3))
+linepts = 8
+colpts = 8
+sim = Simulation((linepts,colpts))
 
 print(sim.temp)
 t = 0
@@ -38,9 +39,9 @@ for timestep in range(10000):
 print(sim.temp)
 temp_array = np.array(temp_list)
 grad_array = np.array(temp_grad)
-grad_array = grad_array.reshape(len(grad_array),9)
+grad_array = grad_array.reshape(len(grad_array),linepts*colpts)
 # still hardcoded - caution
-temp_array = temp_array.reshape(len(temp_array),9)
+temp_array = temp_array.reshape(len(temp_array),linepts*colpts)
 vis = VisualizePartsim(temp_array)
 vis.matshow_field(100,1)
 
