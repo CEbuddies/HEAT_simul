@@ -3,16 +3,21 @@
 Created on Sun Feb 14 14:57:37 2021
 
 @author: nic
+
+ANNOTATION: It is recommended to use Python 3.7 or higher to ensure 
+            running without bugs (take a look at how dicts are handled in your
+                                  specific python version -> ordered)
 """
 import numpy as np 
-from collections import defaultdict
 import pickle
+import json
 
 
 class Simulation():
     
-    def __init__(self,grid_size):
+    def __init__(self,grid_size,dirichlet=None):
         
+        # %% Domain settings
         # TODO: Use new sys_mat creation from mesh
         # get triu, use random numbers the, make it a tril and copy it
         # domain is shaped 1x1
@@ -29,11 +34,14 @@ class Simulation():
         self.dT_tol = 0.1 # absolute value of Temperature change
         # squared simulation domain for start - systems matrix
         # randomly distributed 
-        self.sys_mat = 0.025*np.random.rand(grid_size[0]**2,grid_size[0]**2)
-        self.sys_mat = self.sys_mat*1 # theoretical area of 1 
+        
+        
         self.cont_area_p2p = 0.01
-        self.sys_mat = self.sys_mat*self.cont_area_p2p
-        # random starting temperature
+        # self.sys_mat = self.sys_mat*self.cont_area_p2p
+        
+        
+        
+        #%% Temeperature and material settings
         self.temp = np.random.rand(grid_size[0]*grid_size[1],1)
         self.c = 0.9
         self.m = 1.01
@@ -43,20 +51,25 @@ class Simulation():
         # mesh element object, elements per side and domain size 
         self.mesh = Mesh(grid_size[0],grid_size[1],1,1)
         # connectivity and transfer matrix
-        self.connect, self.k_mat = self.mesh.mat_indices(*self.grid_size)
+        self.k_mat = self.mesh.random_sysmat(0.1)
         
-    
-    def random_sysmat(self):
-        """ Standalone version of sysmat """
-        rand_sysmat = 0.02*np.random.rand(self.number_parts,self.number_parts)
-        return 
-    
-    def randomize_sysmat(self,sysmat):
-        
-        return
+        # set dirichlet BCs
+        # first element in tuple: corresponding index in each el_index 
+        # second element: value that has to be equal at the index, to assure,
+        # that the element is at the domains boundary 
+        # if subset, this can be overriden with arbitrary positions
+        self.bc_dict = {'left':(1,0),'right':(1,grid_size[1]),
+                        'bottom':(0,grid_size[0]),'top':(0,0)}
+        if dirichlet==None:
+            self.dirichlet_flag = False
+        else:
+            self.dirichlet = self.dirichlet(dirichlet)
+            self.dirichlet_flag = True
+        # get a ditionary from the input with eg 'left' and so on
+        #%%
     
     def mat_indices(self,lines,cols):
-        
+        # soo nto deprecate
         list_idx = []
         
         
@@ -106,13 +119,21 @@ class Simulation():
             pass
         return
     
-    def simulation_run_for(self,timestep,time,frames=10000):
+    def simulation_run_for(self,timestep,time):
         
         num_steps = int(round(time/timestep))
         temp_data = np.zeros((num_steps,self.number_parts))
         temp_grad_data = np.zeros((num_steps,self.number_parts))
+        
+        
         # wab spatial gradients!!!
         for t in range(num_steps):
+            # apply BCs
+            if self.dirichlet_flag:
+                for idx,val_distr in zip(self.dirichlet['indices'],
+                                         self.dirichlet['values']):
+                    self.temp[idx] = val_distr
+            
             q_vec = self.part2part_grad()
             old_temp = self.temp
         
@@ -136,6 +157,27 @@ class Simulation():
         
         return results
     
+    def dirichlet(self,bc_valdict):
+        """ Maintain Dirichlet BC """
+        
+        # TODO 
+        # if specified, set a specific flag eg 
+        locations = bc_valdict['locations']
+        values = bc_valdict['values']
+        bc_valdict['indices'] = []
+        for location in locations:
+            # tuple of position within element index (line,col) and 
+            # value to be fulfilled (can actually be arbitrary as well)
+            id_pos, id_val = self.bc_dict[location]
+            bc_ids = []
+            for el_id,el in enumerate(self.mesh.element_indices):
+                if el[id_pos] == id_val:
+                    bc_ids.append(el_id)
+            bc_valdict['indices'].append(bc_ids)
+            
+        return bc_valdict
+# %%      
+    
 class Material():
     
     # build this up to create a whole object from it 
@@ -157,7 +199,8 @@ class Mesh():
         self.coords = np.array(self.xy).T.reshape(el1*el2,2)
         
         self.lines = el1
-        self.cols = el2       
+        self.cols = el2      
+        self.numels = el1*el2
         self.element_indices = self.get_element_indices(el1,el2)
         
         return
@@ -238,6 +281,19 @@ class Mesh():
         
     def connectivity_table(self):
         """ Create connectivity per Element """
+        pass
+        
+    def random_sysmat(self,scale=0.1):
+        
+        r_sysmat = self.build_sysmat()
+        for line in range(9):
+            col = line
+            for curid in range(col,9):
+                if r_sysmat[line,curid] == 1:
+                    r_sysmat[line,curid] = np.random.rand()
+                    r_sysmat[curid,line] = r_sysmat[line,curid]
+                    
+        return r_sysmat*scale
         
     # TODO: connectivity!!!
     
