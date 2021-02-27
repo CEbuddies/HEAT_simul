@@ -125,4 +125,4 @@ dmypy.json
 .pyre/
 
 # binary simulation output data
-.sml
+*.sml
