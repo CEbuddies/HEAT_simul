@@ -58,8 +58,8 @@ class Simulation():
         # second element: value that has to be equal at the index, to assure,
         # that the element is at the domains boundary 
         # if subset, this can be overriden with arbitrary positions
-        self.bc_dict = {'left':(1,0),'right':(1,grid_size[1]),
-                        'bottom':(0,grid_size[0]),'top':(0,0)}
+        self.bc_dict = {'left':(1,0),'right':(1,grid_size[1]-1),
+                        'bottom':(0,grid_size[0]-1),'top':(0,0)}
         if dirichlet==None:
             self.dirichlet_flag = False
         else:
@@ -125,14 +125,15 @@ class Simulation():
         temp_data = np.zeros((num_steps,self.number_parts))
         temp_grad_data = np.zeros((num_steps,self.number_parts))
         
+        # apply BC before start
+        if self.dirichlet_flag:
+                for idx,val_distr in zip(self.dirichlet['indices'],
+                                         self.dirichlet['values']):
+                    self.temp[idx] = val_distr
         
         # wab spatial gradients!!!
         for t in range(num_steps):
             # apply BCs
-            if self.dirichlet_flag:
-                for idx,val_distr in zip(self.dirichlet['indices'],
-                                         self.dirichlet['values']):
-                    self.temp[idx] = val_distr
             
             q_vec = self.part2part_grad()
             old_temp = self.temp
@@ -142,6 +143,11 @@ class Simulation():
             self.ener = new_ener
             # update temperature
             self.temp = self.temp_from_E()
+            # apply BC at the end of increment to not write false data
+            if self.dirichlet_flag:
+                for idx,val_distr in zip(self.dirichlet['indices'],
+                                         self.dirichlet['values']):
+                    self.temp[idx] = val_distr
             temp_data[t,:] = self.temp.T
             temp_grad = (self.temp - old_temp)/timestep
             temp_grad_data[t,:] = temp_grad.T
@@ -297,7 +303,7 @@ class Mesh():
         
     # TODO: connectivity!!!
     
-        
+
         
         
         
