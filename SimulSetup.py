@@ -89,7 +89,8 @@ class Simulation():
             k_mat = self.k_mat
             q_vec =  self.part2part_heavy(temp,number_parts,k_mat)
         else:
-            # create gradients 
+            # create gradients
+            
             temp_mat = np.tile(self.temp,(1,self.number_parts))
             grad_T = temp_mat.T - temp_mat
             qmat = grad_T*self.k_mat
@@ -104,6 +105,7 @@ class Simulation():
     @jit(nopython=True)
     def part2part_heavy(temp,num_pts,k_mat):
         # has to be this way for numba to work
+        temp_mat = np.zeros((num_pts,num_pts))
         temp_mat = temp.repeat(num_pts).reshape((-1,num_pts))
         #temp_mat = np.tile(temp,(1,num_pts))
         grad_T = temp_mat.T - temp_mat
@@ -158,7 +160,7 @@ class Simulation():
             # apply BCs
             
             #q_vec = self.part2part_grad()
-            q_vec = self.part2part_grad_jit()
+            q_vec = self.part2part_grad()
             old_temp = self.temp
         
             # change this and also use adaptive solver 
