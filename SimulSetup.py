@@ -11,11 +11,12 @@ ANNOTATION: It is recommended to use Python 3.7 or higher to ensure
 import numpy as np 
 import pickle
 import json
+from numba import jit
 
 
 class Simulation():
     
-    def __init__(self,grid_size,dirichlet=None):
+    def __init__(self,grid_size,dirichlet=None,jit=False):
         
         # %% Domain settings
         # TODO: Use new sys_mat creation from mesh
@@ -31,22 +32,21 @@ class Simulation():
         self.xy_coords = np.array(xy).T.reshape(self.grid_el_p_side**2,2)
         
         # simul stettings 
-        self.dT_tol = 0.1 # absolute value of Temperature change
-        # squared simulation domain for start - systems matrix
-        # randomly distributed 
+        self.dT_tol = 0.1 # absolute value of Temperature chang
         
         
         self.cont_area_p2p = 0.01
-        # self.sys_mat = self.sys_mat*self.cont_area_p2p
-        
-        
-        
+
+        self.jit = jit
         #%% Temeperature and material settings
         self.temp = np.random.rand(grid_size[0]*grid_size[1],1)
         self.c = 0.9
         self.m = 1.01
         self.ener = self.temp*self.c*self.m
         self.r = (1/grid_size[0])/2
+        
+        # preinitialize matrix building
+        self.tempo_temp_mat = np.tile(self.temp,(1,self.number_parts))
         
         # mesh element object, elements per side and domain size 
         self.mesh = Mesh(grid_size[0],grid_size[1],1,1)
@@ -65,7 +65,7 @@ class Simulation():
         else:
             self.dirichlet = self.dirichlet(dirichlet)
             self.dirichlet_flag = True
-        # get a ditionary from the input with eg 'left' and so on
+        
         #%%
     
     def mat_indices(self,lines,cols):
@@ -83,15 +83,37 @@ class Simulation():
                 
     def part2part_grad(self):
         
-        # create gradients 
-        temp_mat = np.tile(self.temp,(1,self.number_parts))
-        grad_T = temp_mat.T - temp_mat
-        qmat = grad_T*self.k_mat
-        # sum over j
-        q_vec = qmat.sum(1)
-        q_vec = q_vec.reshape(self.number_parts,1)
+        if self.jit:
+            temp = self.temp
+            number_parts = self.number_parts
+            k_mat = self.k_mat
+            q_vec =  self.part2part_heavy(temp,number_parts,k_mat)
+        else:
+            # create gradients 
+            temp_mat = np.tile(self.temp,(1,self.number_parts))
+            grad_T = temp_mat.T - temp_mat
+            qmat = grad_T*self.k_mat
+            # sum over j
+            q_vec = qmat.sum(1)
+            q_vec = q_vec.reshape(self.number_parts,1)
         
         return q_vec
+    
+    
+    @staticmethod
+    @jit(nopython=True)
+    def part2part_heavy(temp,num_pts,k_mat):
+        # has to be this way for numba to work
+        temp_mat = temp.repeat(num_pts).reshape((-1,num_pts))
+        #temp_mat = np.tile(temp,(1,num_pts))
+        grad_T = temp_mat.T - temp_mat
+        qmat = grad_T*k_mat
+        # sum over j
+        q_vec = qmat.sum(1)
+        q_vec = q_vec.reshape(num_pts,1)
+        
+        return q_vec
+        
     
     def fwd_euler(self,f,grad,dt):
         
@@ -135,7 +157,8 @@ class Simulation():
         for t in range(num_steps):
             # apply BCs
             
-            q_vec = self.part2part_grad()
+            #q_vec = self.part2part_grad()
+            q_vec = self.part2part_grad_jit()
             old_temp = self.temp
         
             # change this and also use adaptive solver 
@@ -292,9 +315,9 @@ class Mesh():
     def random_sysmat(self,scale=0.1):
         
         r_sysmat = self.build_sysmat()
-        for line in range(9):
+        for line in range(self.lines):
             col = line
-            for curid in range(col,9):
+            for curid in range(col,self.cols):
                 if r_sysmat[line,curid] == 1:
                     r_sysmat[line,curid] = np.random.rand()
                     r_sysmat[curid,line] = r_sysmat[line,curid]
