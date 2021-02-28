@@ -84,10 +84,10 @@ class Simulation():
     def part2part_grad(self):
         
         if self.jit:
-            temp = self.temp
-            number_parts = self.number_parts
-            k_mat = self.k_mat
-            q_vec =  self.part2part_heavy(temp,number_parts,k_mat)
+            temp_ = self.temp
+            number_parts_ = self.number_parts
+            k_mat_ = self.k_mat
+            q_vec =  self.part2part_heavy(temp_,number_parts_,k_mat_)
         else:
             # create gradients
             
@@ -102,13 +102,16 @@ class Simulation():
     
     
     @staticmethod
-    @jit(nopython=True)
+    @jit(parallel=True)
     def part2part_heavy(temp,num_pts,k_mat):
         # has to be this way for numba to work
-        temp_mat = np.zeros((num_pts,num_pts))
+        # somtimes need to reshape temp vector
+        #temp_mat = np.zeros((num_pts,num_pts))
         temp_mat = temp.repeat(num_pts).reshape((-1,num_pts))
+        # sometimes need to rename transpose
         #temp_mat = np.tile(temp,(1,num_pts))
-        grad_T = temp_mat.T - temp_mat
+        # TODO: Clean this mess up 
+        grad_T = temp_mat.T.reshape(num_pts,num_pts) - temp_mat.reshape(num_pts,num_pts)
         qmat = grad_T*k_mat
         # sum over j
         q_vec = qmat.sum(1)
