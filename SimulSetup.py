@@ -320,9 +320,9 @@ class Mesh():
     def random_sysmat(self,scale=0.1):
         
         r_sysmat = self.build_sysmat()
-        for line in range(self.lines):
+        for line in range(self.lines*self.cols):
             col = line
-            for curid in range(col,self.cols):
+            for curid in range(col,self.cols*self.lines):
                 if r_sysmat[line,curid] == 1:
                     r_sysmat[line,curid] = np.random.rand()
                     r_sysmat[curid,line] = r_sysmat[line,curid]
@@ -331,6 +331,8 @@ class Mesh():
         
     # TODO: connectivity!!!
     
+if __name__ == '__main__':
+    sim = Simulation((3,3))
 
         
         
