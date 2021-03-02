@@ -12,17 +12,28 @@ import numpy as np
 import pickle
 import json
 from numba import jit
+try:
+    import cupy as cp
+except:
+    cp = False
+        
 
 
 class Simulation():
     
-    def __init__(self,grid_size,dirichlet=None,jit=False):
+    def __init__(self,grid_size,dirichlet=None,jit=False,cuda=False):
         
         # %% Domain settings
         # TODO: Use new sys_mat creation from mesh
         # get triu, use random numbers the, make it a tril and copy it
         # domain is shaped 1x1
         # grid size must be tuple 
+        
+        if cp and cuda:
+            self.cuda = True
+        else:
+            self.cuda = False
+            
         self.grid_size = grid_size
         self.grid_el_p_side = grid_size[0]
         self.number_parts = grid_size[0]*grid_size[1]
@@ -52,6 +63,8 @@ class Simulation():
         self.mesh = Mesh(grid_size[0],grid_size[1],1,1)
         # connectivity and transfer matrix
         self.k_mat = self.mesh.random_sysmat(0.1)
+        if self.cuda:
+            self.k_mat = cp.array(self.k_mat)
         
         # set dirichlet BCs
         # first element in tuple: corresponding index in each el_index 
@@ -88,6 +101,10 @@ class Simulation():
             number_parts_ = self.number_parts
             k_mat_ = self.k_mat
             q_vec =  self.part2part_heavy(temp_,number_parts_,k_mat_)
+            
+        if self.cuda:
+            # calculate on CUDA - only recommended for many elements
+            q_vec =  self.part2part_cuda(temp_,number_parts_,k_mat_)
         else:
             # create gradients
             
@@ -118,6 +135,15 @@ class Simulation():
         q_vec = q_vec.reshape(num_pts,1)
         
         return q_vec
+    
+    def part2part_cuda(self):
+        temp = cp.array(self.temp)
+        temp_mat = cp.tile(temp,(1,self.number_parts))
+        grad_T = temp_mat.T - temp_mat
+        qmat = grad_T*self.k_mat
+        # sum over j
+        q_vec = qmat.sum(1)
+        q_vec = q_vec.reshape(self.number_parts,1)
         
     
     def fwd_euler(self,f,grad,dt):
