@@ -104,7 +104,7 @@ class Simulation():
             
         if self.cuda:
             # calculate on CUDA - only recommended for many elements
-            q_vec =  self.part2part_cuda(temp_,number_parts_,k_mat_)
+            q_vec =  self.part2part_cuda()
         else:
             # create gradients
             
