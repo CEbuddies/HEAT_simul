@@ -23,7 +23,7 @@ bc_bottom = bc_bottom[::-1]
 bc_vals = [bc_left,bc_right,bc_top,bc_bottom]
 bc_dict = {'locations':locs,'values':bc_vals}
 
-sim = Simulation((el_side,el_side),bc_dict)
+sim = Simulation((el_side,el_side),bc_dict,cuda=True)
 t_start = time.time()
 simresults = sim.simulation_run_for(0.01,100)
 t_end = time.time()
