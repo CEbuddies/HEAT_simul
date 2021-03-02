@@ -145,6 +145,8 @@ class Simulation():
         q_vec = qmat.sum(1)
         q_vec = q_vec.reshape(self.number_parts,1)
         
+        return q_vec
+        
     
     def fwd_euler(self,f,grad,dt):
         
