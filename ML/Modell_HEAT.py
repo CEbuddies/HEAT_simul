@@ -39,8 +39,11 @@ class HEAT_model(pl.LightningModule):
     def trainig_step(self, batch, batch_idx):
         
         start_config, end_config = batch # features and tars 
-        # maybe do something to x - e.g. reshape
-        predict = self(start_config)
+        # slice up start_config
+        temps = start_config[0]
+        k_mat = start_config[1]
+        inp_ = torch.cat((temps,k_mat),1)
+        predict = self(inp_)
         loss = nn.MSELoss()
         out = loss(predict,end_config)
         

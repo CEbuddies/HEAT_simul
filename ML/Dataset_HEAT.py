@@ -15,10 +15,10 @@ class HEAT_Data(Dataset):
     def __init__(self):
         
         with open('smaples_tars.trn','rb') as pl:
-            xy = pickle.load(pl)
-        self.x = xy['samples']
+            xy = pickle.load(pl) # a dict of data
+        self.x = xy['samples'] # a list of tuples (T_start,k_mat)
         # alle x mal 1000 nehmen 
-        self.y = xy['targets']
+        self.y = xy['features']
         self.nums = len(self.x)
         
     def __getitem__(self,index):
