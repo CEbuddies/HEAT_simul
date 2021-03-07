@@ -16,16 +16,16 @@ from Dataset_HEAT import HEAT_Data
 
 class HEAT_model(pl.LightningModule):
     
-    def __init__(self,in_,out_):
+    def __init__(self,in_,out_,parts=1600,nonzeros=1522):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(in_,512),
+            nn.Linear(in_,4096),
             nn.ReLU(),
-            nn.Linear(512,1024),
+            nn.Linear(8192,8192),
             nn.ReLU(),
-            nn.Linear(1024,1024),
+            nn.Linear(4096,4096),
             nn.ReLU(),
-            nn.Linear(1024,out_))
+            nn.Linear(4096,out_))
         
     def forward(self, x):
         
@@ -36,7 +36,7 @@ class HEAT_model(pl.LightningModule):
         optimizer = torch.optim.Adam(self.parameters(),lr=1e-3)
         return optimizer 
     
-    def trainig_step(self, batch, batch_idx):
+    def training_step(self, batch, batch_idx):
         
         start_config, end_config = batch # features and tars 
         # slice up start_config
