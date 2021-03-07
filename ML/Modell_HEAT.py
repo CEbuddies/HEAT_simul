@@ -10,6 +10,7 @@ import torch.functional as F
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 from Dataset_HEAT import HEAT_Data
+from pytorch_lightning import Trainer
 
 
 # Modell for HEAT-Learning 
@@ -53,4 +54,13 @@ class HEAT_model(pl.LightningModule):
         train_dataset = HEAT_Data()
         train_loader = DataLoader(dataset=train_dataset,
                                   batch_size=16,shuffle=True)
+        
+        return train_loader
+    
+if __name__ == '__main__':
+    
+    trainer = Trainer(fast_dev_run = True)
+    model = HEAT_model(1600+1522,1600)
+    trainer.fit(model)
+    
     
