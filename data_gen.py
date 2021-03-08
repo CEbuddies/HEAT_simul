@@ -2,7 +2,7 @@
 """
 Created on Sat Mar  6 18:41:44 2021
 
-@author: User
+@author: nic
 """
 from SimulSetup import Simulation
 import pickle
@@ -30,8 +30,10 @@ def data_gen():
     simresults = sim.simulation_run_for(0.01,100)
     
     # access the nonzero elements of k_mattrix als further input
-    mat_indcs = np.array(np.where(np.where(sim.k_mat > 0.))).T
-    nonzero = sim.k_mat[mat_indcs[:,0],mat_indcs[:,1]]
+    k_mat = sim.k_mat.get()
+    mat_indcs = np.array(np.where(np.where(k_mat > 0.))).T
+    # trying to copy everywhere to get rid of the references
+    nonzero = sim.k_mat[mat_indcs[:,0],mat_indcs[:,1]].copy()
     
     return simresults, nonzero
     
@@ -40,14 +42,17 @@ if __name__ == '__main__':
     data_dict['features'] = []
     data_dict['targets'] = []
     
-    for i in range(1000):
+    for i in range(4000):
         
+        print(f'starting simulation {i}...')
         res, nonzero_k_mat = data_gen()
-        feature = res['temperature'][0]
-        target = res['temperature'][-1]
+        feature = res['temperature'][0].copy()
+        target = res['temperature'][-1].copy()
         data_dict['features'].append((feature,nonzero_k_mat))
         data_dict['targets'].append(target)
+        print(f'finished simulation {i}')
+    
         
     # write all the data
-    with open('training_data.sml','wb') as pd:
+    with open('training_data_big.sml','wb') as pd:
         pickle.dump(data_dict,pd)

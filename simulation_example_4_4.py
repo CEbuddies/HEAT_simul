@@ -10,7 +10,7 @@ import time
 import numpy as np
 
 # simulation script - example
-el_side = 40
+el_side = 60
 x = np.linspace(0,1,el_side).reshape(el_side,1)
 locs = ['left','right','top','bottom']
 bc_left = x**2
