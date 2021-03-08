@@ -31,7 +31,7 @@ def data_gen():
     
     # access the nonzero elements of k_mattrix als further input
     k_mat = sim.k_mat.get()
-    mat_indcs = np.array(np.where(np.where(k_mat > 0.))).T
+    mat_indcs = np.array(np.where(k_mat > 0.)).T
     # trying to copy everywhere to get rid of the references
     nonzero = k_mat[mat_indcs[:,0],mat_indcs[:,1]].copy()
     
