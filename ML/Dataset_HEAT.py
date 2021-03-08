@@ -14,7 +14,7 @@ class HEAT_Data(Dataset):
     
     def __init__(self):
         
-        with open('smaples_tars.trn','rb') as pl:
+        with open('training_data.sml','rb') as pl:
             xy = pickle.load(pl) # a dict of data
         self.x = xy['samples'] # a list of tuples (T_start,k_mat)
         # alle x mal 1000 nehmen 
@@ -29,8 +29,5 @@ class HEAT_Data(Dataset):
         
         return self.nums
     
-# use this in the pytorch lightning module
-dataset = HEAT_Data()
-dataloader = DataLoader(dataset=dataset,
-                        batch_size=16,shuffle=True,num_workers=2)
+
         

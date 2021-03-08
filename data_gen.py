@@ -33,7 +33,7 @@ def data_gen():
     k_mat = sim.k_mat.get()
     mat_indcs = np.array(np.where(np.where(k_mat > 0.))).T
     # trying to copy everywhere to get rid of the references
-    nonzero = sim.k_mat[mat_indcs[:,0],mat_indcs[:,1]].copy()
+    nonzero = k_mat[mat_indcs[:,0],mat_indcs[:,1]].copy()
     
     return simresults, nonzero
     

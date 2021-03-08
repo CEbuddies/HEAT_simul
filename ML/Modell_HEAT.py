@@ -53,7 +53,7 @@ class HEAT_model(pl.LightningModule):
     def train_dataloader(self):
         train_dataset = HEAT_Data()
         train_loader = DataLoader(dataset=train_dataset,
-                                  batch_size=16,shuffle=True)
+                                  batch_size=32,shuffle=True)
         
         return train_loader
     
