@@ -10,15 +10,22 @@ import time
 import numpy as np
 
 # simulation script - example
-el_side = 60
-x = np.linspace(0,1,el_side).reshape(el_side,1)
-locs = ['left','right','top','bottom']
-bc_left = x**2
-bc_right = x**2
-bc_right = bc_right[::-1]
-bc_top = x**2
-bc_bottom = x**2
-bc_bottom = bc_bottom[::-1]
+el_side = 40
+sym = False
+if sym:
+    x = np.linspace(0,1,el_side).reshape(el_side,1)
+    locs = ['left','right','top','bottom']
+    bc_left = x**2
+    bc_right = x**2
+    bc_right = bc_right[::-1]
+    bc_top = x**2
+    bc_bottom = x**2
+    bc_bottom = bc_bottom[::-1]
+else:
+    bc_left = np.random.rand(el_side,1)
+    bc_right = np.random.rand(el_side,1)
+    bc_top = np.random.rand(el_side,1)
+    bc_bottom = np.random.rand(el_side,1)
 
 bc_vals = [bc_left,bc_right,bc_top,bc_bottom]
 bc_dict = {'locations':locs,'values':bc_vals}
