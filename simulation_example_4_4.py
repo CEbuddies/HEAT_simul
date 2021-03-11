@@ -12,9 +12,10 @@ import numpy as np
 # simulation script - example
 el_side = 40
 sym = False
+locs = ['left','right','top','bottom']
 if sym:
     x = np.linspace(0,1,el_side).reshape(el_side,1)
-    locs = ['left','right','top','bottom']
+    
     bc_left = x**2
     bc_right = x**2
     bc_right = bc_right[::-1]

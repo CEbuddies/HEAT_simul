@@ -208,7 +208,7 @@ class Simulation():
             temp_data[t,:] = self.temp.T
             temp_grad = (self.temp - old_temp)/timestep
             temp_grad_data[t,:] = temp_grad.T
-            glob_ener[t] = self.ener
+            glob_ener[t] = self.ener.sum()
             time += timestep
         # obtain time vector at the end 
         time_ = np.linspace(0,num_steps*timestep,num_steps)
@@ -217,6 +217,7 @@ class Simulation():
         results['time'] = time_
         results['temperature'] = temp_data
         results['temperature_grad'] = temp_grad_data
+        results['glob_ener'] = glob_ener
         
         
         return results
