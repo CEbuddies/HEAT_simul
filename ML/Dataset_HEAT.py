@@ -16,9 +16,14 @@ class HEAT_Data(Dataset):
         
         with open('training_data.sml','rb') as pl:
             xy = pickle.load(pl) # a dict of data
-        self.x = xy['samples'] # a list of tuples (T_start,k_mat)
-        # alle x mal 1000 nehmen 
-        self.y = xy['features']
+        
+        # concatenate all the data together to list of np.arrays
+        for idx,tup in enumerate(xy['features']):
+            xy['features'][idx] = np.concatenate(tup)
+
+        self.x = xy['features'] # a list of np.arrays (T_start,k_mat)
+        
+        self.y = xy['targets']
         self.nums = len(self.x)
         
     def __getitem__(self,index):
