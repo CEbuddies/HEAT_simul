@@ -179,6 +179,7 @@ class Simulation():
         num_steps = int(round(time/timestep))
         temp_data = np.zeros((num_steps,self.number_parts))
         temp_grad_data = np.zeros((num_steps,self.number_parts))
+        glob_ener = np.zeros((num_steps))
         
         # apply BC before start
         if self.dirichlet_flag:
@@ -207,7 +208,8 @@ class Simulation():
             temp_data[t,:] = self.temp.T
             temp_grad = (self.temp - old_temp)/timestep
             temp_grad_data[t,:] = temp_grad.T
-            time += 0.01
+            glob_ener[t] = self.ener
+            time += timestep
         # obtain time vector at the end 
         time_ = np.linspace(0,num_steps*timestep,num_steps)
         
