@@ -128,3 +128,5 @@ dmypy.json
 *.sml
 # checkpoints
 *.ckpt
+# manual valdata
+*.val
