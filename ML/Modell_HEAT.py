@@ -50,7 +50,7 @@ class HEAT_model(pl.LightningModule):
         return {'loss':out}
     
     def train_dataloader(self):
-        train_dataset = HEAT_Data()
+        train_dataset = HEAT_Data('training_data_rand.sml')
         train_loader = DataLoader(dataset=train_dataset,
                                   batch_size=32,shuffle=True,num_workers=4)
         
