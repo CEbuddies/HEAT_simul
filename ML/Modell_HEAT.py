@@ -60,7 +60,8 @@ if __name__ == '__main__':
     
     # this one only for testing purposes
     # trainer = Trainer(fast_dev_run = True,gpus=1)
-    trainer = Trainer(max_epochs=50,gpus=1)
+    trainer = Trainer(max_epochs=50,gpus=1,
+                        checkpoint_callback=False,logger=False)
     model = HEAT_model() # go with defaults for 40x40 domain
     trainer.fit(model)
     
