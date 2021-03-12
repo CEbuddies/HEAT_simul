@@ -126,3 +126,5 @@ dmypy.json
 
 # binary simulation output data
 *.sml
+# checkpoints
+*.ckpt

@@ -8,12 +8,12 @@ Created on Thu Mar 11 11:49:30 2021
 from SimulSetup import Simulation
 import pickle
 import numpy as np
+import argparse
 
 # Script for the data generation 
 
-def data_gen():
+def data_gen(el_side):
     
-    el_side = 40
     
     locs = ['left','right','top','bottom']
     bc_left = np.random.rand(el_side,1)
@@ -39,11 +39,23 @@ def data_gen():
     return simresults, nonzero
     
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description = 'Args for Data creation')
+    parser.add_argument('-s',
+        '--sample',default=10,type=int,help='num of simulated samples')
+    parser.add_argument('-n',
+        '--num',default=40,type=int,help='number parts')
+    parser.add_argument('-d',
+        '--datname',default='train_data_val',help='name of the data')
+    args = parser.parse_args()
+
     data_dict = {}
     data_dict['features'] = []
     data_dict['targets'] = []
+    samples = args.sample
+    ptnum = args.num
+    dname = args.datname + '.sml'
     
-    for i in range(1000):
+    for i in range(samples):
         
         print(f'starting simulation {i}...')
         res, nonzero_k_mat = data_gen()
@@ -55,5 +67,5 @@ if __name__ == '__main__':
     
         
     # write all the data
-    with open('training_data_rand.sml','wb') as pd:
+    with open(dname,'wb') as pd:
         pickle.dump(data_dict,pd)
