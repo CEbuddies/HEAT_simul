@@ -58,7 +58,7 @@ if __name__ == '__main__':
     for i in range(samples):
         
         print(f'starting simulation {i}...')
-        res, nonzero_k_mat = data_gen()
+        res, nonzero_k_mat = data_gen(ptnum)
         feature = res['temperature'][0].copy()
         target = res['temperature'][-1].copy()
         data_dict['features'].append((feature,nonzero_k_mat))
