@@ -17,15 +17,15 @@ from pytorch_lightning import Trainer
 
 class HEAT_model(pl.LightningModule):
     
-    def __init__(self,in_=14076,out_=1600,parts=1600,nonzeros=1522):
+    def __init__(self,in_=7840,out_=1600,parts=1600,nonzeros=1522):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(in_,2**14),
-            nn.ReLU(),
-            nn.Linear(2**14,2**14),
-            nn.ReLU(),
-            nn.Linear(2**14,2**11),
-            nn.ReLU(),
+            nn.Linear(in_,2**13),
+            nn.LeakyReLU(),
+            nn.Linear(2**13,2**13),
+            nn.LeakyReLU(),
+            nn.Linear(2**13,2**11),
+            nn.LeakyReLU(),
             nn.Linear(2**11,out_))
         
     def forward(self, x):
@@ -44,7 +44,7 @@ class HEAT_model(pl.LightningModule):
         start_config = start_config.float() # float seems to work
         end_config = end_config.float()
         predict = self(start_config)
-        loss = nn.MSELoss()
+        loss = nn.L1Loss()
         out = loss(predict,end_config)
         
         return {'loss':out}
