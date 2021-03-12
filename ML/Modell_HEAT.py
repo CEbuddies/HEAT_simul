@@ -64,5 +64,8 @@ if __name__ == '__main__':
                         checkpoint_callback=False,logger=False)
     model = HEAT_model() # go with defaults for 40x40 domain
     trainer.fit(model)
+
+    # saving 
+    trainer.save_checkpoint('final_chk.ckpt')
     
     
