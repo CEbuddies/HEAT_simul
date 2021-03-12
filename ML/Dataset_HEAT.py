@@ -2,7 +2,7 @@
 """
 Created on Tue Mar  2 15:40:34 2021
 
-@author: User
+@author: nwihelm
 """
 
 import torch 
@@ -12,9 +12,9 @@ import pickle
 
 class HEAT_Data(Dataset):
     
-    def __init__(self):
+    def __init__(self,datname):
         
-        with open('training_data.sml','rb') as pl:
+        with open(datname,'rb') as pl:
             xy = pickle.load(pl) # a dict of data
         
         # concatenate all the data together to list of np.arrays

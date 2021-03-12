@@ -43,7 +43,7 @@ if __name__ == '__main__':
     data_dict['features'] = []
     data_dict['targets'] = []
     
-    for i in range(4000):
+    for i in range(1000):
         
         print(f'starting simulation {i}...')
         res, nonzero_k_mat = data_gen()
@@ -55,5 +55,5 @@ if __name__ == '__main__':
     
         
     # write all the data
-    with open('training_data_big.sml','wb') as pd:
+    with open('training_data_rand.sml','wb') as pd:
         pickle.dump(data_dict,pd)

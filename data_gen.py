@@ -42,7 +42,7 @@ if __name__ == '__main__':
     data_dict['features'] = []
     data_dict['targets'] = []
     
-    for i in range(4000):
+    for i in range(10):
         
         print(f'starting simulation {i}...')
         res, nonzero_k_mat = data_gen()

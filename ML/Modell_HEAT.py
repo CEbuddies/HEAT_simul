@@ -22,9 +22,9 @@ class HEAT_model(pl.LightningModule):
         self.net = nn.Sequential(
             nn.Linear(in_,2**14),
             nn.ReLU(),
-            nn.Linear(2**14,2**15),
+            nn.Linear(2**14,2**14),
             nn.ReLU(),
-            nn.Linear(2**15,2**13),
+            nn.Linear(2**14,2**11),
             nn.ReLU(),
             nn.Linear(2**11,out_))
         
@@ -58,7 +58,9 @@ class HEAT_model(pl.LightningModule):
     
 if __name__ == '__main__':
     
-    trainer = Trainer(fast_dev_run = True,gpus=1)
+    # this one only for testing purposes
+    # trainer = Trainer(fast_dev_run = True,gpus=1)
+    trainer = Trainer(max_epochs=50,gpus=1)
     model = HEAT_model() # go with defaults for 40x40 domain
     trainer.fit(model)
     
