@@ -12,7 +12,7 @@ with open('train_data_val.sml','rb') as pl:
 # create the model and load the statedict 
 model = HEAT_model.load_from_checkpoint('final_chk.ckpt')
 
-for idx,el in enumerate(val_data):
+for idx,el in enumerate(val_data['features']):
     val_data['features'][idx] = np.concatenate(el)
 
 # list -> np.array 10x7480
