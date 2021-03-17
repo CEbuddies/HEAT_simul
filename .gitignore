@@ -130,3 +130,5 @@ dmypy.json
 *.ckpt
 # manual valdata
 *.val
+# bc dict data
+*.bcd
