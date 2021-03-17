@@ -30,7 +30,7 @@ class DataGen():
 
     def read_boundaries(self):
         """ process boundary conditions """
-        with open(self.bc_dict_path,'r') as pl:
+        with open(self.bc_dict_path,'rb') as pl:
             bc_dict = pickle.load(pl)
         return bc_dict
 
@@ -43,9 +43,9 @@ class DataGen():
             bc = self.read_boundaries()
         else:
             bc = self.create_boundaries()
-
+        print(f'starting simulations run with {self.samples} samples')
         for i in range(self.samples):
-            print(f'starting simulations run with {self.samples+1} samples')
+            
             print(f'starting simulation {i+1} ...')
             sim = Simulation((self.el_side,self.el_side),bc,cuda=self.cuda)
             simresults = sim.simulation_run_for(0.01,100)
@@ -60,6 +60,7 @@ class DataGen():
 
             print(f'finished simulation {i+1}')
 
+        print(f'Writing to target file ' + self.out_name)
         with open(self.out_name,'wb') as pd:
             pickle.dump(self.data_dict,pd)
 
@@ -90,7 +91,7 @@ if __name__ == '__main__':
     ## build the inputs 
     el_side = args.num
     num_samples = args.sample
-    datname = args.datname + '.sml'
+    data_name = args.datname + '.sml'
     bc_path = args.bcpath + '.bcd'
     cuda = args.cuda
     ## 
