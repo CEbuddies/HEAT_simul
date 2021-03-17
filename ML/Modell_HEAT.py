@@ -22,9 +22,9 @@ class HEAT_model(pl.LightningModule):
         self.net = nn.Sequential(
             nn.Linear(in_,2**13),
             nn.LeakyReLU(),
-            nn.Linear(2**13,2**13),
+            nn.Linear(2**13,2**14),
             nn.LeakyReLU(),
-            nn.Linear(2**13,2**11),
+            nn.Linear(2**14,2**11),
             nn.LeakyReLU(),
             nn.Linear(2**11,out_))
         
