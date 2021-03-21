@@ -132,3 +132,5 @@ dmypy.json
 *.val
 # bc dict data
 *.bcd
+# exclude the sml file directory 
+/SML/*

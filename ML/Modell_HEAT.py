@@ -11,6 +11,7 @@ import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 from Dataset_HEAT import HEAT_Data
 from pytorch_lightning import Trainer
+import argparse
 
 
 # Modell for HEAT-Learning 
@@ -50,13 +51,14 @@ class HEAT_model(pl.LightningModule):
         return {'loss':out}
     
     def train_dataloader(self):
-        train_dataset = HEAT_Data('training_data_rand.sml')
+        train_dataset = HEAT_Data('train_data_big_lin.sml')
         train_loader = DataLoader(dataset=train_dataset,
                                   batch_size=64,shuffle=True,num_workers=4)
         
         return train_loader
     
 if __name__ == '__main__':
+    
     
     # this one only for testing purposes
     # trainer = Trainer(fast_dev_run = True,gpus=1)
@@ -66,6 +68,6 @@ if __name__ == '__main__':
     trainer.fit(model)
 
     # saving 
-    trainer.save_checkpoint('final_chk.ckpt')
+    trainer.save_checkpoint('final_chk_lin.ckpt')
     
     
