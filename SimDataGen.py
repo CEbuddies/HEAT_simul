@@ -7,6 +7,12 @@ Created on Wen Mar  17 18:41:44 2021
 """
 Data creation class for the simulations 
 Specify boundary conditions and so on
+
+type: train - training data
+type: val - validation data
+"""
+"""
+TODO: change datatype of generated data to '.mlinp'
 """
 
 from SimulSetup import Simulation
@@ -91,7 +97,7 @@ if __name__ == '__main__':
     ## build the inputs 
     el_side = args.num
     num_samples = args.sample
-    data_name = args.datname + '.sml'
+    data_name = args.datname + '.mlinp'
     bc_path = args.bcpath + '.bcd'
     cuda = args.cuda
     ## 
