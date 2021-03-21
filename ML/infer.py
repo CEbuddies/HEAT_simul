@@ -7,7 +7,7 @@ import numpy as np
 import torch
 import argparse
 # TODO add argparse for all files 
-with open('val_data_lin.mlinp','rb') as pl:
+with open('train_data_val.sml','rb') as pl:
     val_data = pickle.load(pl)
 
 # create the model and load the statedict 
@@ -27,6 +27,6 @@ val_out_np = val_out.detach().cpu().numpy()
 # add to the dict 
 val_data['prediction'] = val_out_np
 
-with open('infered_data_lin.val','wb') as pd:
+with open('infered_data_lin_rand.val','wb') as pd:
     pickle.dump(val_data,pd)
 

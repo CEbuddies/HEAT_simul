@@ -21,13 +21,13 @@ class HEAT_model(pl.LightningModule):
     def __init__(self,in_=7840,out_=1600,parts=1600,nonzeros=1522):
         super().__init__()
         self.net = nn.Sequential(
-            nn.Linear(in_,2**13),
+            nn.Linear(in_,2**14),
             nn.LeakyReLU(),
-            nn.Linear(2**13,2**14),
+            nn.Linear(2**14,2**14),
             nn.LeakyReLU(),
-            nn.Linear(2**14,2**11),
+            nn.Linear(2**14,2**12),
             nn.LeakyReLU(),
-            nn.Linear(2**11,out_))
+            nn.Linear(2**12,out_))
         
     def forward(self, x):
         

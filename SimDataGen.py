@@ -72,10 +72,15 @@ class DataGen():
 
     def nonzeros(self,k_mat):
 
-        # access the nonzero elements of k_mattrix als further input
+        # access the nonzero elements of k_mattrix as further input
         mat_indcs = np.array(np.where(k_mat > 0.)).T
         # trying to copy everywhere to get rid of the references
         nonzero = k_mat[mat_indcs[:,0],mat_indcs[:,1]].copy()
+
+        # scaling
+        n_min = np.min(nonzero)
+        n_max = np.max(nonzero)
+        nonzero = (nonzero - n_min)/(n_max - n_min)
 
         return nonzero
 
