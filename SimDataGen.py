@@ -12,22 +12,29 @@ type: train - training data
 type: val - validation data
 """
 """
-TODO: change datatype of generated data to '.mlinp'
+
 """
 
 from SimulSetup import Simulation
 import pickle
 import numpy as np
 import argparse
+import random 
 
 class DataGen():
 
     def __init__(self,el_side,num_samples,bc_dict,out_name,cuda):
         self.el_side = el_side
         self.samples = num_samples
-        self.bc_dict_path = bc_dict
+        if bc_dict is not 'random':
+            self.bc_dict_path = bc_dict + '.bcd'
+        else:
+            self.bc_dict_path = None
         self.cuda = cuda
         self.out_name = out_name
+        self.bc_name = ['left','right','top','bottom']
+        self.create_bc_switch()
+        self.dirs = [-1,1]
 
         # data dict
         self.data_dict = {}
@@ -43,12 +50,55 @@ class DataGen():
     def create_boundaries(self):
         pass
 
+    def create_bc_switch(self):
+        """ return randomly picked bc dict """
+
+        # the actual bc vector with the corresponding values 
+        
+        def lin(x):
+            return x
+        def quad(x):
+            return (x-0.5)**2
+        def doub_quad(x):
+            return 2*(x-0.5)**2
+        def sin(x):
+            return np.sin(x)
+        def four_sin(x):
+            return np.sin(4*x)
+        def const(x):
+            # return a random but complete filled vector
+            return np.full((len(x),),np.random.rand())
+
+        
+        self.bc_switch = {'lin':lin,'quad':quad,'doub_quad':doub_quad,
+                    'sin':sin,'four_sin':four_sin,'const':const}
+
+        return
+
+    def get_random_bc_dict(self):
+        bc_val = []
+        for side in self.bc_name:
+            vec = np.linspace(0,1,self.el_side)
+            # draw a random function to create the side
+            bc_type_name = random.choice(list(self.bc_switch.keys())) 
+            bc_vals_side = self.bc_switch[bc_type_name](vec)
+
+            # switch direction
+            bc_vals_side = bc_vals_side[::random.choice(self.dirs)]
+            bc_vals_side = bc_vals_side.reshape(self.el_side,1)
+            bc_val.append(bc_vals_side)
+        # compose the dict
+        bc_dict = {}
+        bc_dict['locations'] = self.bc_name
+        bc_dict['values'] = bc_val
+        return bc_dict
+
     def run(self):
         """ runs the simulations with given specifications """
         if self.bc_dict_path is not None:
             bc = self.read_boundaries()
         else:
-            bc = self.create_boundaries()
+            bc = self.get_random_bc_dict()
         print(f'starting simulations run with {self.samples} samples')
         for i in range(self.samples):
             
