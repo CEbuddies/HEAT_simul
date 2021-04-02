@@ -10,9 +10,12 @@ Specify boundary conditions and so on
 
 type: train - training data
 type: val - validation data
-"""
-"""
 
+so far data is automaticall rerouted to train_data (split in Dataset)
+"""
+"""
+TODO
+metadata creation (maybe)
 """
 
 from SimulSetup import Simulation
@@ -26,6 +29,7 @@ class DataGen():
     def __init__(self,el_side,num_samples,bc_dict,out_name,cuda):
         self.el_side = el_side
         self.samples = num_samples
+        # arparser automatically defaults to random - random creates of different BCs
         if bc_dict is not 'random':
             self.bc_dict_path = bc_dict + '.bcd'
         else:
@@ -34,15 +38,16 @@ class DataGen():
         self.out_name = out_name
         self.bc_name = ['left','right','top','bottom']
         self.create_bc_switch()
+        # orientation direction is switched from one to another side 
         self.dirs = [-1,1]
 
-        # data dict
+        # data dict - final data from which dataset is to be created
         self.data_dict = {}
         self.data_dict['features'] = []
         self.data_dict['targets'] = []
 
     def read_boundaries(self):
-        """ process boundary conditions """
+        """ process boundary conditions from file """
         with open(self.bc_dict_path,'rb') as pl:
             bc_dict = pickle.load(pl)
         return bc_dict
@@ -51,10 +56,12 @@ class DataGen():
         pass
 
     def create_bc_switch(self):
-        """ return randomly picked bc dict """
+        """ return randomly picked bc dict 
+            
+            contains all kind of functions with that the BC 
+            can be shaped (dirichlet BC)
+        """
 
-        # the actual bc vector with the corresponding values 
-        
         def lin(x):
             return x
         def quad(x):
@@ -76,6 +83,10 @@ class DataGen():
         return
 
     def get_random_bc_dict(self):
+        """ creating dirichlet BC dict for each simulation
+
+        Returns: dict - BC dict
+        """
         bc_val = []
         for side in self.bc_name:
             vec = np.linspace(0,1,self.el_side)
@@ -121,7 +132,11 @@ class DataGen():
             pickle.dump(self.data_dict,pd)
 
     def nonzeros(self,k_mat):
+        """ Extracting the nonzero elements of the k-matrix
 
+        In: np.array - k-matrix
+        Out: np.array - nonzero elements (vector shaped)
+        """
         # access the nonzero elements of k_mattrix as further input
         mat_indcs = np.array(np.where(k_mat > 0.)).T
         # trying to copy everywhere to get rid of the references
