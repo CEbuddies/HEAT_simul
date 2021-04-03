@@ -52,14 +52,10 @@ class DataGen():
             bc_dict = pickle.load(pl)
         return bc_dict
 
-    def create_boundaries(self):
-        pass
+    def get_random_bc_dict(self):
+        """ creating dirichlet BC dict for each simulation
 
-    def create_bc_switch(self):
-        """ return randomly picked bc dict 
-            
-            contains all kind of functions with that the BC 
-            can be shaped (dirichlet BC)
+        Returns: dict - BC dict
         """
 
         def lin(x):
@@ -76,17 +72,9 @@ class DataGen():
             # return a random but complete filled vector
             return np.full((len(x),),np.random.rand())
 
-        
         self.bc_switch = {'lin':lin,'quad':quad,'doub_quad':doub_quad,
                     'sin':sin,'four_sin':four_sin,'const':const}
 
-        return
-
-    def get_random_bc_dict(self):
-        """ creating dirichlet BC dict for each simulation
-
-        Returns: dict - BC dict
-        """
         bc_val = []
         for side in self.bc_name:
             vec = np.linspace(0,1,self.el_side)
