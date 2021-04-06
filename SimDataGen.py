@@ -24,6 +24,32 @@ import numpy as np
 import argparse
 import random 
 
+def dirs_(el_num,k_line,lines):
+"""
+return the connectivity tuple per element 
+"""
+
+	col = el_num % lines
+	line = int(el_num/lines)
+	k_ = k_line.reshape(lines,lines)
+	try:
+	    north = k_[line-1,col]
+	except:
+		north = 0
+	try:
+		west = k_[line,col-1]
+	except:
+		west = 0
+	try:
+		east = k_[line,col+1]
+	except:
+		east = 0
+	try:
+		south = k_[line+1,col]
+	except:
+		south = 0
+	return (north,west,east,south
+
 class DataGen():
 
     def __init__(self,el_side,num_samples,bc_dict,out_name,cuda):
@@ -136,30 +162,6 @@ class DataGen():
         nonzero = (nonzero - n_min)/(n_max - n_min)
 
         return nonzero
+        
 
-if __name__ == '__main__':
-    
-    parser = argparse.ArgumentParser(description = 'Args for Data creation')
-    parser.add_argument('-s',
-        '--sample',default=10,type=int,help='num of simulated samples')
-    parser.add_argument('-n',
-        '--num',default=40,type=int,help='number parts')
-    parser.add_argument('-d',
-        '--datname',default='train_data_val',help='name of the data')
-    parser.add_argument('-b',
-        '--bcpath',default='linear',help='path of bc dict')
-    parser.add_argument('-c',
-        '--cuda',default=True,help='cuda support')
-    args = parser.parse_args()
-
-    ## build the inputs 
-    el_side = args.num
-    num_samples = args.sample
-    data_name = args.datname + '.mlinp'
-    bc_path = args.bcpath + '.bcd'
-    cuda = args.cuda
-    ## 
-
-    dg = DataGen(el_side,num_samples,bc_path,data_name,cuda)
-    dg.run()
 
