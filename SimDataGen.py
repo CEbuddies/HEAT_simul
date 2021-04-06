@@ -101,7 +101,8 @@ class DataGen():
             else:
                 bc = self.get_random_bc_dict()
             print(f'starting simulation {i+1} ...')
-            sim = Simulation((self.el_side,self.el_side),bc,cuda=self.cuda)
+            sim = Simulation((self.el_side,self.el_side)
+                    ,bc,cuda=self.cuda)
             simresults = sim.simulation_run_for(0.01,100)
             k_mat = sim.k_mat.get()
             nonzero_k_mat = self.nonzeros(k_mat)
