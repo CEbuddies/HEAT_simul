@@ -16,6 +16,10 @@ so far data is automaticall rerouted to train_data (split in Dataset)
 """
 TODO
 metadata creation (maybe)
+
+current version supports only squared domain 
+please adjust in init and in dirs_ as well as in the run methods 
+then remove this remark 
 """
 
 from SimulSetup import Simulation
@@ -24,14 +28,14 @@ import numpy as np
 import argparse
 import random 
 
-def dirs_(el_num,k_line,lines):
+def dirs_(el_num,k_line,els_side):
 """
 return the connectivity tuple per element 
 """
 
 	col = el_num % lines
 	line = int(el_num/lines)
-	k_ = k_line.reshape(lines,lines)
+	k_ = k_line.reshape(els_side,els_side)
 	try:
 	    north = k_[line-1,col]
 	except:
@@ -137,6 +141,39 @@ class DataGen():
             feature = simresults['temperature'][0].copy()
             target = simresults['temperature'][-1].copy()
             self.data_dict['features'].append((feature,nonzero_k_mat))
+            self.data_dict['targets'].append(target)
+
+            print(f'finished simulation {i+1}')
+
+        print(f'Writing to target file ' + self.out_name)
+        with open(self.out_name,'wb') as pd:
+            pickle.dump(self.data_dict,pd)
+
+    def run_spat(self):
+        """ runs the simulations with given specifications """
+        
+        print(f'starting simulations run with {self.samples} samples')
+        for i in range(self.samples):
+            if self.bc_dict_path is not None:
+                bc = self.read_boundaries()
+            else:
+                bc = self.get_random_bc_dict()
+            print(f'starting simulation {i+1} ...')
+            sim = Simulation((self.el_side,self.el_side)
+                    ,bc,cuda=self.cuda)
+            simresults = sim.simulation_run_for(0.01,100)
+            k_mat = sim.k_mat.get()
+            # process k_mat to a three dim 
+            k3 = np.zeros((self.el_side*self.el_side,4))
+            for el_idx,k_line in enumerate(k_mat):
+                k3[el_idx] = dirs_(el_idx,k_line,self.el_side)
+
+            k3 = k3.reshape(self.el_side,self.el_side,4)
+
+            # has to be copied for freeing the memory
+            feature = simresults['temperature'][0].copy()
+            target = simresults['temperature'][-1].copy()
+            self.data_dict['features'].append((feature,k3))
             self.data_dict['targets'].append(target)
 
             print(f'finished simulation {i+1}')
