@@ -29,30 +29,30 @@ import argparse
 import random 
 
 def dirs_(el_num,k_line,els_side):
-"""
-return the connectivity tuple per element 
-"""
+    """
+    return the connectivity tuple per element 
+    """
 
-	col = el_num % lines
-	line = int(el_num/lines)
-	k_ = k_line.reshape(els_side,els_side)
-	try:
-	    north = k_[line-1,col]
-	except:
-		north = 0
-	try:
-		west = k_[line,col-1]
-	except:
-		west = 0
-	try:
-		east = k_[line,col+1]
-	except:
-		east = 0
-	try:
-		south = k_[line+1,col]
-	except:
-		south = 0
-	return (north,west,east,south
+    col = el_num % els_side
+    line = int(el_num/els_side)
+    k_ = k_line.reshape(els_side,els_side)
+    try:
+        north = k_[line-1,col]
+    except:
+        north = 0
+    try:
+        west = k_[line,col-1]
+    except:
+        west = 0
+    try:
+        east = k_[line,col+1]
+    except:
+        east = 0
+    try:
+        south = k_[line+1,col]
+    except:
+        south = 0
+    return (north,west,east,south)
 
 class DataGen():
 
