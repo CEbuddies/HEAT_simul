@@ -30,14 +30,13 @@ class DataGen():
         self.el_side = el_side
         self.samples = num_samples
         # arparser automatically defaults to random - random creates of different BCs
-        if bc_dict is not 'random':
+        if bc_dict != 'random':
             self.bc_dict_path = bc_dict + '.bcd'
         else:
             self.bc_dict_path = None
         self.cuda = cuda
         self.out_name = out_name
         self.bc_name = ['left','right','top','bottom']
-        self.create_bc_switch()
         # orientation direction is switched from one to another side 
         self.dirs = [-1,1]
 
@@ -65,9 +64,9 @@ class DataGen():
         def doub_quad(x):
             return 2*(x-0.5)**2
         def sin(x):
-            return np.sin(x)
+            return np.abs(np.sin(x))
         def four_sin(x):
-            return np.sin(4*x)
+            return np.abs(np.sin(4*x))
         def const(x):
             # return a random but complete filled vector
             return np.full((len(x),),np.random.rand())
@@ -94,13 +93,13 @@ class DataGen():
 
     def run(self):
         """ runs the simulations with given specifications """
-        if self.bc_dict_path is not None:
-            bc = self.read_boundaries()
-        else:
-            bc = self.get_random_bc_dict()
+        
         print(f'starting simulations run with {self.samples} samples')
         for i in range(self.samples):
-            
+            if self.bc_dict_path is not None:
+                bc = self.read_boundaries()
+            else:
+                bc = self.get_random_bc_dict()
             print(f'starting simulation {i+1} ...')
             sim = Simulation((self.el_side,self.el_side),bc,cuda=self.cuda)
             simresults = sim.simulation_run_for(0.01,100)
