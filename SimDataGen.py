@@ -15,7 +15,8 @@ so far data is automaticall rerouted to train_data (split in Dataset)
 """
 """
 TODO
-metadata creation (maybe)
+metadata creation (maybe) - timestamp, (from who), particles, shape,
+train or not if possible, complete shape
 
 current version supports only squared domain 
 please adjust in init and in dirs_ as well as in the run methods 
