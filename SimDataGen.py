@@ -53,7 +53,7 @@ def dirs_(el_num,k_line,els_side):
         south = k_[line+1,col]
     except:
         south = 0
-    return (north,west,east,south)
+    return (north,west,south,east)
 
 class DataGen():
 
