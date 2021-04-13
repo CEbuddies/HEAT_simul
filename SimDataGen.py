@@ -164,10 +164,10 @@ class DataGen():
                     ,bc,cuda=self.cuda)
             simresults = sim.simulation_run_for(0.01,100)
             k_mat = sim.k_mat.get()
-            # process k_mat to a three dim 
-            k3 = np.zeros((self.el_side*self.el_side,4))
+            # process k_mat to a three dim - thereotical one dim at back
+            k3 = np.zeros((4,self.el_side*self.el_side,1))
             for el_idx,k_line in enumerate(k_mat):
-                k3[el_idx] = dirs_(el_idx,k_line,self.el_side)
+                k3[0:,el_idx,0] = dirs_(el_idx,k_line,self.el_side)
 
             # channels x elements x elements
             k3 = k3.reshape(4,self.el_side,self.el_side)
