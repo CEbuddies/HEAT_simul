@@ -169,7 +169,8 @@ class DataGen():
             for el_idx,k_line in enumerate(k_mat):
                 k3[el_idx] = dirs_(el_idx,k_line,self.el_side)
 
-            k3 = k3.reshape(self.el_side,self.el_side,4)
+            # channels x elements x elements
+            k3 = k3.reshape(4,self.el_side,self.el_side)
 
             # has to be copied for freeing the memory
             feature = simresults['temperature'][0].copy()
