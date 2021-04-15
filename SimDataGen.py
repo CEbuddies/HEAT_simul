@@ -57,7 +57,7 @@ def dirs_(el_num,k_line,els_side):
 
 class DataGen():
 
-    def __init__(self,el_side,num_samples,bc_dict,out_name,cuda):
+    def __init__(self,el_side,num_samples,bc_dict,out_name,cuda,meta=None):
         self.el_side = el_side
         self.samples = num_samples
         # arparser automatically defaults to random - random creates of different BCs
@@ -75,6 +75,16 @@ class DataGen():
         self.data_dict = {}
         self.data_dict['features'] = []
         self.data_dict['targets'] = []
+
+        # originally writing the meta information
+        meta_dict = {}
+        meta_dict['elements'] = el_side
+        meta_dict['data_len'] = num_samples
+        meta_dict['boundary'] = bc_dict
+        meta_dict['description'] = meta
+        # adding the metainformation dict
+        self.data_dict['meta'] = meta_dict
+
 
     def read_boundaries(self):
         """ process boundary conditions from file """
