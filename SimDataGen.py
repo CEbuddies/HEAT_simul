@@ -161,7 +161,7 @@ class DataGen():
             pickle.dump(self.data_dict,pd)
 
     def run_spat(self):
-        """ runs the simulations with given specifications """
+        """ runs the simulations with given specifications for spatial K-Mat """
         
         print(f'starting simulations run with {self.samples} samples')
         for i in range(self.samples):
