@@ -355,6 +355,7 @@ class Mesh():
             col = line
             for curid in range(col,self.cols*self.lines):
                 if r_sysmat[line,curid] == 1:
+                    # entries and symmetry is applied here
                     r_sysmat[line,curid] = np.random.rand()
                     r_sysmat[curid,line] = r_sysmat[line,curid]
                     
