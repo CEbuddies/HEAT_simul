@@ -57,7 +57,8 @@ def dirs_(el_num,k_line,els_side):
 
 class DataGen():
 
-    def __init__(self,el_side,num_samples,bc_dict,out_name,cuda,meta=None):
+    def __init__(self,el_side,num_samples,bc_dict,out_name,cuda,
+                simtime=100,timestep=0.01,meta=None):
         self.el_side = el_side
         self.samples = num_samples
         # arparser automatically defaults to random - random creates of different BCs
@@ -68,6 +69,8 @@ class DataGen():
         self.cuda = cuda
         self.out_name = out_name
         self.bc_name = ['left','right','top','bottom']
+        self.simtime = simtime
+        self.timestep = timestep
         # orientation direction is switched from one to another side 
         self.dirs = [-1,1]
 
@@ -82,6 +85,8 @@ class DataGen():
         meta_dict['data_len'] = num_samples
         meta_dict['boundary'] = bc_dict
         meta_dict['description'] = meta
+        meta_dict['simtime'] = simtime
+        meta_dict['timestep'] = timestep
         # adding the metainformation dict
         self.data_dict['meta'] = meta_dict
 
