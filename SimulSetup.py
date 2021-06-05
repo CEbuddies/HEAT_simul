@@ -360,7 +360,17 @@ class Mesh():
                     r_sysmat[curid,line] = r_sysmat[line,curid]
                     
         return r_sysmat*scale
+    
+    def make_isotropic(self,k_mat,k_value):
+        # get indices 
+        indices = np.where(k_mat.flat != 0.)
+        # make indices a list
+        indices = list(indices[0])
         
+        for idx in indices:
+            k_mat.flat[idx] = k_value
+            
+        return k_mat
     # TODO: connectivity!!!
     
 if __name__ == '__main__':
