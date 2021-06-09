@@ -31,11 +31,13 @@ import random
 
 def dirs_(el_num,k_line,els_side):
     """
-    return the connectivity tuple per element 
+    return the connectivity tuple per element
+    the respective directions are (up,left,right,down) 
     """
 
     col = el_num % els_side
     line = int(el_num/els_side)
+    # use the line, reshape it and check in which direction there is a value
     k_ = k_line.reshape(els_side,els_side)
     try:
         north = k_[line-1,col]
@@ -68,6 +70,7 @@ class DataGen():
             self.bc_dict_path = None
         self.cuda = cuda
         self.out_name = out_name
+        # sides of domain referring to dirichlet BCs in Simulation
         self.bc_name = ['left','right','top','bottom']
         self.simtime = simtime
         self.timestep = timestep
@@ -102,7 +105,7 @@ class DataGen():
 
         Returns: dict - BC dict
         """
-
+        # different possible boundary shapes
         def lin(x):
             return x
         def quad(x):
